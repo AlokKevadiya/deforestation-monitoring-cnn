@@ -15,7 +15,7 @@
 
 This project applies Convolutional Neural Networks (CNNs) to aerial imagery to classify land as
 **Forest** or **Non-Forest** — the foundational capability for automated deforestation monitoring.
-A custom CNN built from scratch is compared against a **MobileNetV2 transfer-learning** model.
+A custom CNN built from scratch is compared against a **VGG16 transfer-learning** model.
 
 ## Dataset
 
@@ -76,7 +76,7 @@ The implementation covers every required element:
 - Custom CNN model (3 conv blocks + dense head)
 - Model training with early stopping and checkpointing
 - Evaluation: confusion matrix, classification report, accuracy/loss curves
-- Comparison with a transfer-learning model (**MobileNetV2**)
+- Comparison with a transfer-learning model (**VGG16**)
 - ROC curves and AUC
 - Model comparison table
 - **Grad-CAM** visualizations
@@ -92,12 +92,23 @@ The implementation covers every required element:
 | `03_augmentation_examples.png` | Augmentation preview |
 | `04_custom_cnn_curves.png` | Custom CNN accuracy/loss |
 | `05a/05b_*` | Custom CNN confusion matrix & ROC |
-| `06_transfer_curves.png` | MobileNetV2 accuracy/loss |
-| `07a/07b_*` | MobileNetV2 confusion matrix & ROC |
+| `06_transfer_curves.png` | VGG16 accuracy/loss |
+| `07a/07b_*` | VGG16 confusion matrix & ROC |
 | `08_model_comparison_table.png` | Side-by-side metrics |
 | `09_roc_comparison.png` | Combined ROC |
 | `10_gradcam.png` | Grad-CAM heatmaps |
 | `11_error_analysis.png` | Misclassified examples |
+
+## Results
+
+| Model | Accuracy | Precision | Recall | F1-score | AUC |
+|-------|----------|-----------|--------|----------|-----|
+| Custom CNN | 0.821 | 0.819 | 0.929 | 0.871 | 0.883 |
+| VGG16 Transfer | 0.718 | 0.854 | 0.682 | 0.758 | 0.828 |
+
+Dataset: 5,108 images (3,301 Forest / 1,807 Non-Forest). Trained on a 70/15/15 stratified split.
+The custom CNN outperformed the VGG16 transfer-learning baseline on this dataset, likely because
+ImageNet's natural-object features transfer less directly to top-down aerial imagery.
 
 ## Frameworks
 
