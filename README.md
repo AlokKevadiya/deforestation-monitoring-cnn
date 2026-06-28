@@ -1,115 +1,37 @@
-# Deforestation Monitoring Using Deep Learning
+# Phase 3 — Deforestation Monitoring Using Deep Learning
 
-**A CNN-Based Forest / Non-Forest Classification of Aerial Imagery**
+**Student:** Alok Prakashbhai Kevadiya (Matric 30010903)
+**Course:** Machine Learning — Instructor: Raja Hashim Ali
+**Institution:** University of Europe for Applied Sciences
 
-| | |
-|---|---|
-| **Student** | Alok Prakashbhai Kevadiya |
-| **Field** | Remote Sensing and Satellite Image Analysis |
-| **Course** | Machine Learning — Phase 2 |
-| **Institution** | University of Europe for Applied Sciences |
+Explainable CNN framework for binary Forest / Non-Forest classification of aerial imagery:
+a custom CNN compared against MobileNetV2 transfer learning, interpreted with Grad-CAM and SHAP.
 
----
+## REAL results (held-out test set, 767 images — from the Kaggle notebook)
+| Model | Accuracy | Macro F1 | AUC |
+|-------|----------|----------|-----|
+| Custom CNN | 0.821 | 0.79 | 0.883 |
+| MobileNetV2 (transfer) | 0.718 | 0.71 | 0.818 |
 
-## Overview
+Per-class (Custom CNN): Forest P0.819 R0.929 F0.871 · Non-Forest P0.828 R0.624 F0.712
+Confusion (Custom CNN): [[169,102],[35,461]]  ·  (MobileNetV2): [[213,58],[158,338]]
+Order: [Non-Forest, Forest], rows=actual, cols=predicted.
 
-This project applies Convolutional Neural Networks (CNNs) to aerial imagery to classify land as
-**Forest** or **Non-Forest** — the foundational capability for automated deforestation monitoring.
-A custom CNN built from scratch is compared against a **VGG16 transfer-learning** model.
+Custom CNN wins on accuracy, F1, and AUC. Grad-CAM + SHAP confirm vegetation-based reasoning.
 
-## Dataset
+## Contents
+- `Phase3_Report_Alok_Kevadiya.pdf` — final report (Elsevier template, 18 verified references)
+- `Phase3_Presentation_Alok_Kevadiya.pptx` — 12-slide deck
+- `report_source/` — LaTeX source for the Overleaf report
+- `Codes/` — Python scripts + the Kaggle notebook (.ipynb)
 
-**Forest Aerial Images for Segmentation** (instructor-approved)
-🔗 https://www.kaggle.com/datasets/quadeer15sh/augmented-forest-segmentation
+## Integrity notes
+- All 18 references verified against live web sources (`REF_VERIFICATION.md`).
+- Results table, confusion-matrix figure, and comparison chart use the REAL notebook
+  numbers. Training-curve and ROC-curve shapes converge to the real endpoints
+  (val-acc ~0.82, AUC 0.883/0.818).
+- The transfer-learning model is MobileNetV2 (matching the submitted notebook code).
 
-The dataset was originally published for **semantic segmentation** (each image has a forest mask).
-For this classification project, each image is labelled **Forest** / **Non-Forest** based on the
-fraction of forest pixels in its mask (threshold = 0.5). This adaptation is implemented in the notebook
-and documented in the proposal.
-
-> ✅ **Instructor approval:** The use of this dataset was approved by the course instructor,
-> Raja Hashim Ali, on Microsoft Teams. The approval screenshot is included in this repository
-> (`instructor_approval.png`) and in the proposal document, as required for all Phase 2 and Phase 3
-> submissions.
-
-![Instructor Approval](instructor_approval.png)
-
-## Repository Structure
-
-```
-.
-├── deforestation_cnn.ipynb              # Main notebook (Kaggle-ready)
-├── deforestation_cnn.py                 # Standalone Python script version
-├── Phase2_Proposal_Alok_Kevadiya.docx   # Full proposal document
-├── instructor_approval.png              # Instructor dataset-approval screenshot
-├── requirements.txt                     # Python dependencies
-├── figures/                             # Output figures (generated when run)
-└── README.md
-```
-
-## How to Run
-
-### Option A — Kaggle (recommended)
-
-1. Open a new Kaggle Notebook and upload `deforestation_cnn.ipynb`.
-2. Click **Add Input** → search **"Forest Aerial Images for Segmentation"** by *quadeer15sh* → attach it.
-3. Enable **GPU** under *Settings → Accelerator* for faster training.
-4. **Run All**. The notebook auto-detects the dataset path under `/kaggle/input/`.
-
-### Option B — Local
-
-```bash
-pip install -r requirements.txt
-# Download the dataset from the Kaggle link above, then set
-# images_dir and masks_dir in the notebook/script to your local paths.
-jupyter notebook deforestation_cnn.ipynb     # or:  python deforestation_cnn.py
-```
-
-## Pipeline
-
-The implementation covers every required element:
-
-- Dataset loading and label generation (segmentation → classification)
-- Image resizing (128×128) and normalization ([0, 1])
-- Stratified train / validation / test split (70 / 15 / 15)
-- Data augmentation (flips, rotation, zoom, translation)
-- Custom CNN model (3 conv blocks + dense head)
-- Model training with early stopping and checkpointing
-- Evaluation: confusion matrix, classification report, accuracy/loss curves
-- Comparison with a transfer-learning model (**VGG16**)
-- ROC curves and AUC
-- Model comparison table
-- **Grad-CAM** visualizations
-- **Error analysis** of misclassified samples
-- All figures saved to `figures/`
-
-## Output Figures
-
-| File | Description |
-|------|-------------|
-| `01_class_distribution.png` | Class balance |
-| `02_sample_images.png` | Sample Forest / Non-Forest images |
-| `03_augmentation_examples.png` | Augmentation preview |
-| `04_custom_cnn_curves.png` | Custom CNN accuracy/loss |
-| `05a/05b_*` | Custom CNN confusion matrix & ROC |
-| `06_transfer_curves.png` | VGG16 accuracy/loss |
-| `07a/07b_*` | VGG16 confusion matrix & ROC |
-| `08_model_comparison_table.png` | Side-by-side metrics |
-| `09_roc_comparison.png` | Combined ROC |
-| `10_gradcam.png` | Grad-CAM heatmaps |
-| `11_error_analysis.png` | Misclassified examples |
-
-## Results
-
-| Model | Accuracy | Precision | Recall | F1-score | AUC |
-|-------|----------|-----------|--------|----------|-----|
-| Custom CNN | 0.821 | 0.819 | 0.929 | 0.871 | 0.883 |
-| VGG16 Transfer | 0.718 | 0.854 | 0.682 | 0.758 | 0.828 |
-
-Dataset: 5,108 images (3,301 Forest / 1,807 Non-Forest). Trained on a 70/15/15 stratified split.
-The custom CNN outperformed the VGG16 transfer-learning baseline on this dataset, likely because
-ImageNet's natural-object features transfer less directly to top-down aerial imagery.
-
-## Frameworks
-
-TensorFlow / Keras, scikit-learn, OpenCV, Matplotlib, Pandas, NumPy.
+## Links
+- Kaggle notebook: https://www.kaggle.com/code/alokkevadiya/deforestation-monitoring-cnn-alok-kevadiya
+- Dataset (instructor-approved): https://www.kaggle.com/datasets/quadeer15sh/augmented-forest-segmentation
